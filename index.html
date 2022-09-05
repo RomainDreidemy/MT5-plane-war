@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <form id="form">
+        <input type="text" name="id" id="id">
+        <input type="submit">
+    </form>
+</head>
+<body>
+
+<script type="module">
+        import { io } from "https://cdn.socket.io/4.3.2/socket.io.esm.min.js";
+        const socket = io("http://localhost:3000");
+
+        socket.on("connect", () => {
+            console.log(socket.id)
+        })
+
+        socket.emit("send_id", Math.random())
+
+        socket.on("enemy_position", (position) => {
+            console.log(position)
+        })
+
+        const form = document.getElementById("form")
+        const idInput = document.getElementById("id");
+
+        form.addEventListener("submit", function(evt) {
+            evt.preventDefault();
+
+            socket.emit("update_position", idInput.value, 12, 124)
+        });
+    </script>
+</body>
+</html>
