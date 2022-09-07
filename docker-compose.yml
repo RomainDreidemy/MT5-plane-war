@@ -9,7 +9,7 @@ services:
     container_name: websocket
     working_dir: /server
     ports:
-      - 3000:3000
+      - 5050:3000
     networks:
       - app-network
     volumes:
