@@ -8,6 +8,8 @@ services:
     command: /bin/bash -c "while sleep 1000; do :; done"
     container_name: websocket
     working_dir: /server
+    env_file:
+      - .env
     ports:
       - 5050:3000
     networks:

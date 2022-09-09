@@ -1,18 +1,20 @@
 import { Server } from "socket.io";
 import {SocketId, UserId} from "socket.types";
+import { OnEventSocketEnum } from "./emums/sockets/OnEventSocketEnum";
+import { EmitEventSocketEnum } from "./emums/sockets/EmitEventSocketEnum";
 
 const io = new Server({
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.ALLOW_ORIGIN || "http://localhost:3000",
     methods: ["GET", "POST"]
   }
 });
 
-io.on("connection", (socket) => {
+io.on(OnEventSocketEnum.CONNEXION, (socket) => {
   console.info(`SOCKET_ID: ${socket.id}`)
 
   // Second player can join the room with this event
-  socket.on("join", (roomId: string) => {
+  socket.on(OnEventSocketEnum.JOIN, (roomId: string) => {
     const room = io.sockets.adapter.rooms.get(roomId)
 
     if (room) {
@@ -31,66 +33,50 @@ io.on("connection", (socket) => {
   })
 
   // Send the position to the other user
-  socket.on("start_party", () => {
+  socket.on(OnEventSocketEnum.START_PARTY, () => {
     const room = io.sockets.adapter.rooms.get(socket.id)
 
     if (room.size < 2) {
       console.error(`${socket.id} CANNOT START A PART - NOT ENOUGH PLAYER`)
     } else {
-      io.to(socket.id).emit("start", Array.from(room))
+      io.to(socket.id).emit(EmitEventSocketEnum.START, Array.from(room))
     }
   })
 
   setInterval(() => {
     const room = io.sockets.adapter.rooms.get(socket.id)
     if (room) {
-      socket.emit("get_players", Array.from(room))
+      socket.emit(EmitEventSocketEnum.GET_PLAYERS, Array.from(room))
     }
   }, 5000)
 
   // Send the position to the other user
-  socket.on("move", (to: UserId, x, y, rotation) => {
+  socket.on(OnEventSocketEnum.MOVE, (to: UserId, x: number, y: number, rotation: number) => {
     const enemySocket = io.sockets.sockets.get(to)
     if (enemySocket) {
-      enemySocket.emit("get_enemy_position", { position: {x, y}, rotation })
-      console.info(`${socket.id} send position to ${to}`)
+      enemySocket.emit(EmitEventSocketEnum.GET_ENEMY_POSITION, { position: {x, y}, rotation })
+      // console.info(`${socket.id} send position to ${to}`)
 
     }
-    console.info(`${socket.id} move to ${x} ${y} position`)
+    // console.info(`${socket.id} move to ${x} ${y} position`)
   })
 
-  // When a user shoot, check if the other user is in the range.
-  // If he is, emit the event "get_shot"
-  // In both case send a status to the shooter
-  socket.on("shoot", (shooter: UserId, to: UserId, x: number, y: number) => {
-    // const shooterSocketId: SocketId = users.get(to)
-    // const toSocketId: SocketId = users.get(to)
-    //
-    // if (hasShotOnUser(x, y)) {
-    //   socket.to(toSocketId).emit("get_shot")
-    //   socket.to(shooterSocketId).emit("shoot_result", { touch: true })
-    // } else {
-    //   socket.to(shooterSocketId).emit("shoot_result", { touch: false })
-    // }
+  socket.on(OnEventSocketEnum.SHOOT, (to: SocketId) => {
+    const enemySocket = io.sockets.sockets.get(to)
+    if (enemySocket) {
+      enemySocket.emit(EmitEventSocketEnum.GET_SHOT)
+      console.info(`${socket.id} SHOT ${to}`)
+    }
   })
 
-  // When a user disconnect, remove his key in the list of user
-  socket.on("disconnect", () => {
-    deleteUserBySocketId(socket.id)
+  socket.on(OnEventSocketEnum.DESTROY, (to: SocketId) => {
+    const enemySocket = io.sockets.sockets.get(to)
+    if (enemySocket) {
+      enemySocket.emit(EmitEventSocketEnum.GET_DESTROY)
+      socket.emit(EmitEventSocketEnum.ENEMY_DESTROY)
+      console.info(`${socket.id} DESTROY ${to}`)
+    }
   })
 });
-
-const hasShotOnUser = (x: number, y:number) => {
-  const otherUserPosition = {x: 10, y: 20}
-  return otherUserPosition.x === x && otherUserPosition.y === y
-}
-
-const deleteUserBySocketId = (socketId: SocketId) => {
-  // users.forEach((value, key) => {
-  //   if (value === socketId) {
-  //     users.delete(key)
-  //   }
-  // })
-}
 
 io.listen(3000);
