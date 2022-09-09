@@ -27,9 +27,14 @@ io.on(OnEventSocketEnum.CONNEXION, (socket) => {
         socket.emit("join_error", `${roomId} est complète.`)
         console.error(`${socket.id} WAS UNABLE TO JOIN ROOM ${roomId} - NOT FOUND`)
       } else {
-        socket.join(roomId)
-        socket.emit("join_successfully", roomId)
-        console.info(`${socket.id} JOIN ROOM ${roomId}`)
+        if (roomId === socket.id) {
+          socket.emit("join_error", `Vous ne pouvez pas rejoindre votre propre party.`)
+          console.error(`${socket.id} WAS UNABLE TO JOIN ROOM ${roomId} - SAME ROOM ID`)
+        } else {
+          socket.join(roomId)
+          socket.emit("join_successfully", roomId)
+          console.info(`${socket.id} JOIN ROOM ${roomId}`)
+        }
       }
     } else {
       socket.emit("join_error", `${roomId} n'existe pas.`)
