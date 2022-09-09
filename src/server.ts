@@ -1,9 +1,17 @@
 import { Server } from "socket.io";
+import * as express from "express";
+import { createServer } from "http";
 import {SocketId, UserId} from "socket.types";
 import { OnEventSocketEnum } from "./emums/sockets/OnEventSocketEnum";
 import { EmitEventSocketEnum } from "./emums/sockets/EmitEventSocketEnum";
 
-const io = new Server({
+const PORT = process.env.PORT || 3000;
+const INDEX = '/index.html';
+
+const app = express();
+const httpServer = createServer(app);
+
+const io = new Server(httpServer, {
   cors: {
     origin: process.env.ALLOW_ORIGIN || "http://localhost:3000",
     methods: ["GET", "POST"]
@@ -79,4 +87,4 @@ io.on(OnEventSocketEnum.CONNEXION, (socket) => {
   })
 });
 
-io.listen(3000);
+httpServer.listen(+process.env.PORT || 3000);
