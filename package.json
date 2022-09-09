@@ -10,7 +10,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "api": "nodemon",
+    "dev": "nodemon",
+    "prod": "node ./dist/server.js",
     "build": "./node_modules/.bin/tsc"
   },
   "repository": {
