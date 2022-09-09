@@ -5,9 +5,6 @@ import {SocketId, UserId} from "socket.types";
 import { OnEventSocketEnum } from "./emums/sockets/OnEventSocketEnum";
 import { EmitEventSocketEnum } from "./emums/sockets/EmitEventSocketEnum";
 
-const PORT = process.env.PORT || 3000;
-const INDEX = '/index.html';
-
 const app = express();
 const httpServer = createServer(app);
 
