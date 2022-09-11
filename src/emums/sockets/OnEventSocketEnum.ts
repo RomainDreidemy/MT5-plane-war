@@ -4,5 +4,6 @@ export enum OnEventSocketEnum {
   START_PARTY = "start_party",
   MOVE = "move",
   SHOOT = "shoot",
-  DESTROY = "destroy"
+  DESTROY = "destroy",
+  BULLET = "bullet"
 }

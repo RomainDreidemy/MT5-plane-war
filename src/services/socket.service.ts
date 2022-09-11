@@ -22,6 +22,8 @@ export class SocketService {
 
     this.sendPlayersListInterval()
 
+    this.onNewBulletEvent()
+
     this.onMoveEvent()
 
     this.onShootEvent()
@@ -73,6 +75,15 @@ export class SocketService {
       const enemySocket = this.io.sockets.sockets.get(to)
       if (enemySocket) {
         enemySocket.emit(EmitEventSocketEnum.GET_ENEMY_POSITION, { position: {x, y}, rotation })
+      }
+    })
+  }
+
+  private onNewBulletEvent() {
+    this.socket.on(OnEventSocketEnum.BULLET, (to: UserId, position: {x: number, y: number }, velocity: {x: number, y: number }) => {
+      const enemySocket = this.io.sockets.sockets.get(to)
+      if (enemySocket) {
+        enemySocket.emit(EmitEventSocketEnum.ENEMY_BULLET, position, velocity)
       }
     })
   }

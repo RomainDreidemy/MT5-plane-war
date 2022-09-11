@@ -5,4 +5,5 @@ export enum EmitEventSocketEnum {
   GET_SHOT = "get_shot",
   GET_DESTROY = "get_destroy",
   ENEMY_DESTROY = "enemy_destroy",
+  ENEMY_BULLET = "enemy_bullet",
 }
